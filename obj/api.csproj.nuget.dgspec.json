@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj": {}
+    "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj": {}
   },
   "projects": {
-    "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj": {
+    "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
+        "projectUniqueName": "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
         "projectName": "api",
-        "projectPath": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
+        "projectPath": "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
         "packagesPath": "C:\\Users\\felip\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\obj\\",
+        "outputPath": "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\felip\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -46,6 +46,10 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[8.0.10, )"
+            },
+            "Npgsql": {
+              "target": "Package",
+              "version": "[8.0.5, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",

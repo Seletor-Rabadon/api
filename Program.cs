@@ -5,6 +5,9 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(); 
 
+//dependency injection
+builder.Services.AddScoped<IDataService, DatabaseService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

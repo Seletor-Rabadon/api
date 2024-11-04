@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualBasic;
 
 namespace api.Controllers
 {
@@ -8,25 +9,27 @@ namespace api.Controllers
     public class MainController : ControllerBase
     {
         private readonly IDataService _dataService;
+        private readonly string _apiKey;
+        private readonly string _region;
 
-        public MainController(IDataService dataService)
+        public MainController(IDataService dataService,
+                              IConfiguration configuration)
         {
             _dataService = dataService;
+            _apiKey = configuration["RiotApi:ApiKey"];
+            _region = "americas";
         }
-
-        string apiKey = "RGAPI-c6352017-69e4-42af-a202-8f13ee6b5070"; 
-        string region = "americas"; 
 
         [HttpGet("getUser")]
         public async Task<ActionResult> GetUserAsync(string username, string tagName){
 
         using (HttpClient client = new HttpClient())
         {
-            client.DefaultRequestHeaders.Add("X-Riot-Token", apiKey);
+            client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
 
             try
             {
-                string url = $"https://{region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{username}/{tagName}?api_key={apiKey}";
+                string url = $"https://{_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{username}/{tagName}?api_key={_apiKey}";
 
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
@@ -57,11 +60,11 @@ namespace api.Controllers
         {
             using (HttpClient client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Add("X-Riot-Token", apiKey);
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
 
                 try
                 {
-                    string url = $"https://{region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids";
+                    string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids";
                     HttpResponseMessage response = await client.GetAsync(url);
                     response.EnsureSuccessStatusCode();
 

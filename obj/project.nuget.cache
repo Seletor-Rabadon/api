@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "/QCazblZCe8=",
+  "dgSpecHash": "3WUMFVJLERU=",
   "success": true,
-  "projectFilePath": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
+  "projectFilePath": "c:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\felip\\.nuget\\packages\\microsoft.aspnetcore.openapi\\8.0.10\\microsoft.aspnetcore.openapi.8.0.10.nupkg.sha512",
     "C:\\Users\\felip\\.nuget\\packages\\microsoft.extensions.apidescription.server\\6.0.5\\microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",

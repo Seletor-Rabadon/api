@@ -17,14 +17,14 @@ public class DatabaseService : IDataService
     public async Task<bool> InsertPlayerAsync(string puuid, string userName, string tagLine)
     {
 
-        var query = "INSERT INTO public.player (PUUID, USERNAME, TAGLINE) VALUES (@PUUID, @USERNAME, @TAGLINE)";
+        var query = "INSERT INTO public.player (puuid, game_name, tag_line) VALUES (@PUUID, @GAMENAME, @TAGLINE)";
 
         await using var connection = new NpgsqlConnection(_connectionString);
         await connection.OpenAsync();
 
         await using var command = new NpgsqlCommand(query, connection);
         command.Parameters.AddWithValue("PUUID", puuid);
-        command.Parameters.AddWithValue("USERNAME", userName);
+        command.Parameters.AddWithValue("GAMENAME", userName);
         command.Parameters.AddWithValue("TAGLINE", tagLine);
 
         try

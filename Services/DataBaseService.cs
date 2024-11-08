@@ -42,4 +42,33 @@ public class DatabaseService : IDataService
             await connection.CloseAsync();
         }
     }
+
+    public async Task<bool> InsertPlayerMasteryAsync(string puuid, int championId, int championLevel)
+    {
+
+        var query = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";
+
+        await using var connection = new NpgsqlConnection(_connectionString);
+        await connection.OpenAsync();
+
+        await using var command = new NpgsqlCommand(query, connection);
+        command.Parameters.AddWithValue("PUUID", puuid);
+        command.Parameters.AddWithValue("CHAMPIONID", championId);
+        command.Parameters.AddWithValue("CHAMPIONLEVEL", championLevel);
+
+        try
+        {
+            var result = await command.ExecuteNonQueryAsync();
+            return result > 0;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
+            return false;
+        }
+        finally
+        {
+            await connection.CloseAsync();
+        }
+    }
 }

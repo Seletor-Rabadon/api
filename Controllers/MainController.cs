@@ -1,4 +1,5 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
 
@@ -20,42 +21,43 @@ namespace api.Controllers
             _region = "americas";
         }
 
-        [HttpGet("getUser")]
-        public async Task<ActionResult> GetUserAsync(string username, string tagName){
-
-        using (HttpClient client = new HttpClient())
+        [HttpGet("insertUser")]
+        public async Task<ActionResult> InsertUserAsync(string username, string tagName)
         {
-            client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
 
-            try
+            using (HttpClient client = new HttpClient())
             {
-                string url = $"https://{_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{username}/{tagName}?api_key={_apiKey}";
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-
-                var result = await response.Content.ReadAsStringAsync();
-                var user = JsonSerializer.Deserialize<UserResponse>(result);
-
-                bool insertSuccess = await _dataService.InsertPlayerAsync(user.puuid, user.gameName, user.tagLine);
-
-                if (insertSuccess)
+                try
                 {
-                    return Ok("Jogador inserido com sucesso.");
+                    string url = $"https://{_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{username}/{tagName}?api_key={_apiKey}";
+
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    var result = await response.Content.ReadAsStringAsync();
+                    var user = JsonSerializer.Deserialize<UserResponse>(result);
+
+                    bool insertSuccess = await _dataService.InsertPlayerAsync(user.Puuid, user.GameName, user.TagLine);
+
+                    if (insertSuccess)
+                    {
+                        return Ok("Player inserted successfully.");
+                    }
+                    else
+                    {
+                        return BadRequest("Error inserting player.");
+                    }
                 }
-                else
+                catch (HttpRequestException e)
                 {
-                    return BadRequest("Erro ao inserir o jogador.");
+                    return BadRequest($"Erro na solicitação: {e.Message}");
                 }
             }
-            catch (HttpRequestException e)
-            {
-                return BadRequest($"Erro na solicitação: {e.Message}");
-            }
         }
-        }
-        
-        [HttpGet("GetMatchHistory")]
+
+        [HttpGet("getMatchHistory")]
         public async Task<ActionResult> GetMatchHistoryAsync(string puuid)
         {
             using (HttpClient client = new HttpClient())
@@ -78,20 +80,33 @@ namespace api.Controllers
             }
         }
 
-
-        [HttpGet("GetAllChampions")]
-        public async Task<ActionResult> GetAllChampionsAsync()
+        [HttpGet("insertMasteryPoints")]
+        public async Task<ActionResult> InsertMasteryPoints(string puuid, int championCount, string server)
         {
             using (HttpClient client = new HttpClient())
             {
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
+
                 try
                 {
-                    string url = $"https://ddragon.leagueoflegends.com/cdn/14.21.1/data/en_US/champion.json";
+                    string url = $"https://{server}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count={championCount}";
                     HttpResponseMessage response = await client.GetAsync(url);
                     response.EnsureSuccessStatusCode();
 
+                    var options = new JsonSerializerOptions
+                    {
+                        PropertyNameCaseInsensitive = true
+                    };
+
                     var result = await response.Content.ReadAsStringAsync();
-                    return Ok(result);
+                    var playerMastery = JsonSerializer.Deserialize<List<PlayerMastery>>(result, options);
+
+                    foreach (PlayerMastery item in playerMastery)
+                    {
+                        await _dataService.InsertPlayerMasteryAsync(item.Puuid, item.ChampionId, item.ChampionLevel);
+                    }
+
+                    return Ok("Player inserted successfully.");
                 }
                 catch (HttpRequestException e)
                 {
@@ -99,7 +114,6 @@ namespace api.Controllers
                 }
             }
         }
-
 
     }
 }

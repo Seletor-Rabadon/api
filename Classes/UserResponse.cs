@@ -1,6 +1,6 @@
 public class UserResponse
 {
-    public string puuid { get; set; }
-    public string gameName { get; set; }
-    public string tagLine { get; set; }
+    public string Puuid { get; set; }
+    public string GameName { get; set; }
+    public string TagLine { get; set; }
 }

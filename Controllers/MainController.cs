@@ -1,4 +1,6 @@
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualBasic;
@@ -93,10 +95,7 @@ namespace api.Controllers
                     HttpResponseMessage response = await client.GetAsync(url);
                     response.EnsureSuccessStatusCode();
 
-                    var options = new JsonSerializerOptions
-                    {
-                        PropertyNameCaseInsensitive = true
-                    };
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
                     var result = await response.Content.ReadAsStringAsync();
                     var playerMastery = JsonSerializer.Deserialize<List<PlayerMastery>>(result, options);
@@ -115,5 +114,79 @@ namespace api.Controllers
             }
         }
 
+        [HttpGet("insertMatchData")]
+        public async Task<ActionResult> GetMatchData(string matchId, string puuid)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
+                string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/{matchId}";
+
+                var response = await client.GetStringAsync(url);
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var matchApiResponse = JsonSerializer.Deserialize<Match>(response, options);
+
+                // Find the participant that matches the specified PUUID
+                var participant = matchApiResponse.Info.Participants.Find(p => p.Puuid == puuid);
+
+                float kda = (participant.Deaths == 0) ? (float)(participant.Kills + participant.Assists) : (float)(participant.Kills + participant.Assists);
+
+                var matchChampion = new MatchChampion
+                {
+                    MatchId = matchId,
+                    Puuid = participant.Puuid,
+                    ChampionId = participant.ChampionId,
+                    Position = participant.TeamPosition,
+                    Kda = kda,
+                    Win = participant.Win
+                };
+
+                await _dataService.InsertMatchAsync(matchChampion);
+
+                return Ok();
+            }
+        }
+
+        [HttpGet("updatePlayerData")]
+        public async Task<ActionResult> UpdataPlayerData(string puuid)
+        {
+            await _dataService.UpdatePlayerDataAsync(puuid);
+
+            return Ok();
+        }
+
+        [HttpGet("loopInsertMatchChampion")]
+        public async Task<ActionResult> LoopInsertMatchChampion(string puuid)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
+
+                try
+                {
+                    string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=100";
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+                    var result = await response.Content.ReadAsStringAsync();
+                    var matchList = JsonSerializer.Deserialize<List<string>>(result, options);
+
+                    foreach (string match in matchList)
+                    {
+                        await GetMatchData(match, puuid);
+                    }
+
+                    await UpdataPlayerData(puuid);
+
+                    return Ok("Loop has been done!");
+                }
+                catch (HttpRequestException e)
+                {
+                    return BadRequest($"Erro na solicitação: {e.Message}");
+                }
+            }
+        }
     }
 }

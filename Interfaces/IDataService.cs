@@ -4,4 +4,8 @@ public interface IDataService
 {
     Task<bool> InsertPlayerAsync(string puuid, string userName, string tagLine);
     Task<bool> InsertPlayerMasteryAsync(string puuid, int championId, int championLevel);
+
+    Task<bool> InsertMatchAsync(MatchChampion matchChampion);
+
+    Task<bool> UpdatePlayerDataAsync(string puuid);
 }

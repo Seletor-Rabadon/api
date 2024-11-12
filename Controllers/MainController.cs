@@ -38,8 +38,9 @@ namespace api.Controllers
                     HttpResponseMessage response = await client.GetAsync(url);
                     response.EnsureSuccessStatusCode();
 
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                     var result = await response.Content.ReadAsStringAsync();
-                    var user = JsonSerializer.Deserialize<UserResponse>(result);
+                    var user = JsonSerializer.Deserialize<UserResponse>(result, options);
 
                     bool insertSuccess = await _dataService.InsertPlayerAsync(user.Puuid, user.GameName, user.TagLine);
 
@@ -181,6 +182,40 @@ namespace api.Controllers
                     await UpdataPlayerData(puuid);
 
                     return Ok("Loop has been done!");
+                }
+                catch (HttpRequestException e)
+                {
+                    return BadRequest($"Erro na solicitação: {e.Message}");
+                }
+            }
+        }
+
+        [HttpGet("getUserProfile")]
+        public async Task<ActionResult> GetUserProfile(string gameName, string tagLine)
+        {
+            using (HttpClient client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("X-Riot-Token", _apiKey);
+
+                try
+                {
+                    string url = $"https://{_region}.api.riotgames.com/riot/account/v1/accounts/by-riot-id/{gameName}/{tagLine}?api_key={_apiKey}";
+
+                    HttpResponseMessage response = await client.GetAsync(url);
+                    response.EnsureSuccessStatusCode();
+
+                    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                    var result = await response.Content.ReadAsStringAsync();
+                    var user = JsonSerializer.Deserialize<UserResponse>(result, options);
+
+                    url = $"https://BR1.api.riotgames.com/lol/summoner/v4/summoners/by-puuid/{user.Puuid}";
+                    HttpResponseMessage responseProfile = await client.GetAsync(url);
+                    responseProfile.EnsureSuccessStatusCode();
+
+                    var resultProfile = await responseProfile.Content.ReadAsStringAsync();
+                    var profile = JsonSerializer.Deserialize<Profile>(resultProfile, options);
+
+                    return Ok(profile);
                 }
                 catch (HttpRequestException e)
                 {

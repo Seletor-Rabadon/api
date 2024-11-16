@@ -1,129 +1,120 @@
-using System;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
+using api.Classes;
+using api.Interfaces;
 using Npgsql;
 
-public class DatabaseService : IDataService
+namespace api.Services
 {
-    private readonly string _connectionString;
-
-    public DatabaseService(IConfiguration configuration)
+    public class DatabaseService(IConfiguration configuration) : IDataBaseService
     {
-        _connectionString = configuration.GetConnectionString("PostgresConnection");
-    }
+        private readonly string _connectionString = configuration.GetConnectionString("PostgresConnection")
+                ?? throw new ArgumentException("PostgresConnection string is not configured");
 
-    public async Task<bool> InsertPlayerAsync(string puuid, string userName, string tagLine)
-    {
-
-        var query = "INSERT INTO public.player (puuid, game_name, tag_line) VALUES (@PUUID, @GAMENAME, @TAGLINE)";
-
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
-
-        await using var command = new NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("PUUID", puuid);
-        command.Parameters.AddWithValue("GAMENAME", userName);
-        command.Parameters.AddWithValue("TAGLINE", tagLine);
-
-        try
+        public async Task<bool> InsertPlayerAsync(string puuid, string userName, string tagLine)
         {
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
+
+            var query = "INSERT INTO public.player (puuid, game_name, tag_line) VALUES (@PUUID, @GAMENAME, @TAGLINE)";
+
+            await using var connection = new NpgsqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("PUUID", puuid);
+            command.Parameters.AddWithValue("GAMENAME", userName);
+            command.Parameters.AddWithValue("TAGLINE", tagLine);
+
+            try
+            {
+                var result = await command.ExecuteNonQueryAsync();
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
         }
-        catch (Exception ex)
+
+        public async Task<bool> InsertPlayerMasteryAsync(string puuid, int championId, int championLevel)
         {
-            Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
-            return false;
+
+            var query = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";
+
+            await using var connection = new NpgsqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("PUUID", puuid);
+            command.Parameters.AddWithValue("CHAMPIONID", championId);
+            command.Parameters.AddWithValue("CHAMPIONLEVEL", championLevel);
+
+            try
+            {
+                var result = await command.ExecuteNonQueryAsync();
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
         }
-        finally
+
+        public async Task<bool> InsertMatchAsync(MatchChampion matchChampion)
         {
-            await connection.CloseAsync();
-        }
-    }
 
-    public async Task<bool> InsertPlayerMasteryAsync(string puuid, int championId, int championLevel)
-    {
-
-        var query = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";
-
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
-
-        await using var command = new NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("PUUID", puuid);
-        command.Parameters.AddWithValue("CHAMPIONID", championId);
-        command.Parameters.AddWithValue("CHAMPIONLEVEL", championLevel);
-
-        try
-        {
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
-            return false;
-        }
-        finally
-        {
-            await connection.CloseAsync();
-        }
-    }
-
-    public async Task<bool> InsertMatchAsync(MatchChampion matchChampion)
-    {
-
-        var query = @"
+            var query = @"
         INSERT INTO public.match_champion (match_id, puuid, champion_id, position, kda, win)
         VALUES (@MATCHID, @PUUID, @CHAMPIONID, @POSITION, @KDA, @WIN)";
 
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+            await using var connection = new NpgsqlConnection(_connectionString);
+            await connection.OpenAsync();
 
-        await using var command = new NpgsqlCommand(query, connection);
-        command.Parameters.AddWithValue("MATCHID", matchChampion.MatchId);
-        command.Parameters.AddWithValue("PUUID", matchChampion.Puuid);
-        command.Parameters.AddWithValue("CHAMPIONID", matchChampion.ChampionId);
-        command.Parameters.AddWithValue("POSITION", matchChampion.Position ?? (object)DBNull.Value); // Null handling for position
-        command.Parameters.AddWithValue("KDA", matchChampion.Kda);
-        command.Parameters.AddWithValue("WIN", matchChampion.Win);
+            await using var command = new NpgsqlCommand(query, connection);
+            command.Parameters.AddWithValue("MATCHID", matchChampion.MatchId);
+            command.Parameters.AddWithValue("PUUID", matchChampion.Puuid);
+            command.Parameters.AddWithValue("CHAMPIONID", matchChampion.ChampionId);
+            command.Parameters.AddWithValue("POSITION", matchChampion.Position ?? (object)DBNull.Value); // Null handling for position
+            command.Parameters.AddWithValue("KDA", matchChampion.Kda);
+            command.Parameters.AddWithValue("WIN", matchChampion.Win);
 
-        try
-        {
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
+            try
+            {
+                var result = await command.ExecuteNonQueryAsync();
+                return result > 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error inserting match data: {ex.Message}");
+                return false;
+            }
+            finally
+            {
+                await connection.CloseAsync();
+            }
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error inserting match data: {ex.Message}");
-            return false;
-        }
-        finally
-        {
-            await connection.CloseAsync();
-        }
-    }
 
-    public async Task<bool> UpdatePlayerDataAsync(string puuid)
-    {
-        using (var conn = new NpgsqlConnection(_connectionString))
+        public async Task<bool> UpdatePlayerDataAsync(string puuid)
         {
-            conn.Open();
-            List<int> championIds = new List<int>();
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
+            List<int> championIds = [];
 
             // Definindo o comando SQL para o SELECT
             using (var cmd = new NpgsqlCommand("SELECT champion_id FROM public.player_mastery WHERE puuid = @puuid", conn))
             {
                 cmd.Parameters.AddWithValue("@puuid", puuid);
-                using (var reader = cmd.ExecuteReader())
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
-                    {
-                        championIds.Add(reader.GetInt32(0));
-                    }
+                    championIds.Add(reader.GetInt32(0));
                 }
             }
 
@@ -151,26 +142,23 @@ public class DatabaseService : IDataService
                     }
                 }
 
-                using (var cmdUpdate = new NpgsqlCommand(@"
+                using var cmdUpdate = new NpgsqlCommand(@"
                 UPDATE player_mastery
                    SET matchs = @matchs,
                        kda = @mediaKda
                  WHERE puuid = @puuid
-                   AND champion_id = @championId", conn))
-                {
-                    // Adicionando os parâmetros para o comando de atualização
-                    cmdUpdate.Parameters.AddWithValue("@matchs", matchs);
-                    cmdUpdate.Parameters.AddWithValue("@mediaKda", kda);
-                    cmdUpdate.Parameters.AddWithValue("@puuid", puuid);
-                    cmdUpdate.Parameters.AddWithValue("@championId", item);
+                   AND champion_id = @championId", conn);
+                // Adicionando os parâmetros para o comando de atualização
+                cmdUpdate.Parameters.AddWithValue("@matchs", matchs);
+                cmdUpdate.Parameters.AddWithValue("@mediaKda", kda);
+                cmdUpdate.Parameters.AddWithValue("@puuid", puuid);
+                cmdUpdate.Parameters.AddWithValue("@championId", item);
 
-                    // Executando o comando de atualização
-                    int rowsAffected = cmdUpdate.ExecuteNonQuery();
-                }
+                // Executando o comando de atualização
+                int rowsAffected = cmdUpdate.ExecuteNonQuery();
             }
+
+            return true;
         }
-
-        return true;
-
     }
 }

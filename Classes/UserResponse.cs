@@ -1,6 +1,9 @@
-public class UserResponse
+namespace api.Classes
 {
-    public string Puuid { get; set; }
-    public string GameName { get; set; }
-    public string TagLine { get; set; }   
+    public class UserResponse
+    {
+        public required string Puuid { get; set; }
+        public required string GameName { get; set; }
+        public required string TagLine { get; set; }
+    }
 }

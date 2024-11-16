@@ -10,6 +10,7 @@
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": "8.0.10",
           "Npgsql": "8.0.5",
+          "Python.Runtime": "2.7.9",
           "Swashbuckle.AspNetCore": "6.9.0"
         },
         "runtime": {
@@ -53,6 +54,7 @@
           }
         }
       },
+      "Python.Runtime/2.7.9": {},
       "Swashbuckle.AspNetCore/6.9.0": {
         "dependencies": {
           "Microsoft.Extensions.ApiDescription.Server": "6.0.5",
@@ -140,6 +142,13 @@
       "sha512": "sha512-zRG5V8cyeZLpzJlKzFKjEwkRMYIYnHWJvEor2lWXeccS2E1G2nIWYYhnukB51iz5XsWSVEtqg3AxTWM0QJ6vfg==",
       "path": "npgsql/8.0.5",
       "hashPath": "npgsql.8.0.5.nupkg.sha512"
+    },
+    "Python.Runtime/2.7.9": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-NBS5t9KJvBVDoAFsVOQ79Ri133Hir8O6sqcEZJufXLVvlReXvzyZKhkcO5fpWcqjj6798qrWd/tO/TXCx2Ga7g==",
+      "path": "python.runtime/2.7.9",
+      "hashPath": "python.runtime.2.7.9.nupkg.sha512"
     },
     "Swashbuckle.AspNetCore/6.9.0": {
       "type": "package",

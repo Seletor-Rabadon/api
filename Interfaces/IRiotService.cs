@@ -9,5 +9,7 @@ namespace api.Interfaces
         Task<List<string>> GetMatchHistory(string puuid, int count = 100);
         Task<List<PlayerMastery>> GetChampionMasteries(string puuid, int championCount, string server);
         Task<Match> GetMatchData(string matchId);
+        Task<string> GetNextPlayer(string puuid);
+        Task<UserResponse> GetPlayerByPuuid(string puuid);
     }
 } 

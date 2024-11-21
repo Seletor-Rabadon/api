@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using api.Interfaces;
-using System.IO;
 using System.Text.Json;
 using api.Classes;
 
@@ -10,21 +9,20 @@ namespace api.Services
     {
         private readonly IConfiguration _configuration = configuration;        
         private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
-        private static string ExecutePythonScript(string scriptPath)
+        
+        private static void ExecutePythonScript(string scriptPath)
         {
-            ProcessStartInfo start = new ProcessStartInfo
+            ProcessStartInfo start = new()
             {
                 FileName = "python",
                 Arguments = scriptPath,
                 UseShellExecute = false,
-                RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 CreateNoWindow = true,
-                WorkingDirectory = Directory.GetCurrentDirectory()
+                WorkingDirectory = Directory.GetCurrentDirectory() + "/AI"
             };
 
             using Process? process = Process.Start(start) ?? throw new Exception("Failed to start Python process");
-            string result = process.StandardOutput.ReadToEnd().Trim();
             string error = process.StandardError.ReadToEnd();
 
             process.WaitForExit();
@@ -33,22 +31,24 @@ namespace api.Services
             {
                 throw new Exception($"Python error: {error}");
             }
-
-            if (string.IsNullOrEmpty(result))
-            {
-                throw new Exception("No output received from Python script");
-            }
-
-            return result;
         }
 
-        public TrainingResult Train()
+        public async Task<TrainingResult> Train()
         {
-            string jsonResult = ExecutePythonScript("AI/autoencoder.py");
+            // Execute Python script which generates the result file
+            await Task.Run(() => ExecutePythonScript("autoencoder.py"));
+
+            // Read the generated result file
+            string resultFilePath = Path.Combine(Directory.GetCurrentDirectory(), "AI", "training_result.json");
+            
+            if (!File.Exists(resultFilePath))
+            {
+                throw new Exception("Training result file was not generated");
+            }
 
             try
-            { 
-
+            {  
+                string jsonResult = File.ReadAllText(resultFilePath);
                 var trainingResult = JsonSerializer.Deserialize<TrainingResult>(jsonResult, _jsonOptions)
                     ?? throw new Exception("Failed to deserialize training result");
 
@@ -56,7 +56,11 @@ namespace api.Services
             }
             catch (JsonException ex)
             {
-                throw new Exception($"Failed to parse Python output as JSON: {ex.Message}");
+                throw new Exception($"Failed to parse training result file as JSON: {ex.Message}");
+            }
+            catch (IOException ex)
+            {
+                throw new Exception($"Failed to read training result file: {ex.Message}");
             }
         }
     }

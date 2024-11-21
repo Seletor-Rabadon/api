@@ -106,8 +106,7 @@ namespace api.Services
             await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
             List<int> championIds = [];
-
-            // Definindo o comando SQL para o SELECT
+            
             using (var cmd = new NpgsqlCommand("SELECT champion_id FROM public.player_mastery WHERE puuid = @puuid", conn))
             {
                 cmd.Parameters.AddWithValue("@puuid", puuid);
@@ -148,13 +147,12 @@ namespace api.Services
                        kda = @mediaKda
                  WHERE puuid = @puuid
                    AND champion_id = @championId", conn);
-                // Adicionando os parâmetros para o comando de atualização
+                   
                 cmdUpdate.Parameters.AddWithValue("@matchs", matchs);
                 cmdUpdate.Parameters.AddWithValue("@mediaKda", kda);
                 cmdUpdate.Parameters.AddWithValue("@puuid", puuid);
                 cmdUpdate.Parameters.AddWithValue("@championId", item);
-
-                // Executando o comando de atualização
+                
                 int rowsAffected = cmdUpdate.ExecuteNonQuery();
             }
 

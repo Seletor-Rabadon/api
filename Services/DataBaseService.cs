@@ -38,7 +38,7 @@ namespace api.Services
             }
         }
 
-        public async Task<bool> InsertPlayerMasteryAsync(string puuid, int championId, int championLevel)
+        public async Task<bool> InsertPlayerMasteryAsync(string puuid, long championId, int championLevel)
         {
 
             var query = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";

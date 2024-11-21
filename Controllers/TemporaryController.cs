@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using api.Interfaces;
 using api.Classes;
+using System.Diagnostics;
+using api.Services;
 
 namespace api.Controllers
 {
-    [ApiController]     
+    [ApiController]
     public class TemporaryController : ControllerBase
     {
         private readonly IDataBaseService _dataService;
@@ -58,7 +60,7 @@ namespace api.Controllers
             try
             {
                 var playerMasteries = await _riotService.GetChampionMasteries(puuid, championCount, server);
-                
+
                 foreach (var mastery in playerMasteries)
                 {
                     await _dataService.InsertPlayerMasteryAsync(mastery.Puuid, mastery.ChampionId, mastery.ChampionLevel);
@@ -85,8 +87,8 @@ namespace api.Controllers
                     return NotFound("Participant not found in match");
                 }
 
-                float kda = (participant.Deaths == 0) ? 
-                    (participant.Kills + participant.Assists) : 
+                float kda = (participant.Deaths == 0) ?
+                    (participant.Kills + participant.Assists) :
                     (participant.Kills + participant.Assists);
 
                 var matchChampion = new MatchChampion
@@ -94,7 +96,7 @@ namespace api.Controllers
                     MatchId = matchId,
                     Puuid = participant.Puuid,
                     ChampionId = participant.ChampionId,
-                    Position = participant.TeamPosition,
+                    Position = participant.Lane,
                     Kda = kda,
                     Win = participant.Win
                 };
@@ -128,10 +130,18 @@ namespace api.Controllers
             try
             {
                 var matchList = await _riotService.GetMatchHistory(puuid);
+                int totalRequests = 0;
 
                 foreach (string match in matchList)
                 {
                     await GetMatchData(match, puuid);
+                    totalRequests++;
+                    if(totalRequests == 20){
+                        //Delay for resquest limit
+                        totalRequests = 0;
+                        await Task.Delay(1000);
+                    }
+
                 }
 
                 await UpdatePlayerData(puuid);
@@ -150,6 +160,37 @@ namespace api.Controllers
             {
                 var profile = await _riotService.GetGameProfile(gameName, tagLine);
                 return Ok(profile);
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Request error: {e.Message}");
+            }
+        }
+
+        [HttpPost("insertLoopPlayer")]
+        public async Task<ActionResult> InsertLoopPlayer(string puuid, long ms)
+        {
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                UserResponse currentPlayer = new UserResponse(){
+                    Puuid = puuid,
+                    GameName = "",
+                    TagLine = ""
+                };
+
+                while (stopwatch.ElapsedMilliseconds < ms)
+                {
+                    currentPlayer = await _riotService.GetPlayerByPuuid(currentPlayer.Puuid);
+                    await _dataService.InsertPlayerAsync(currentPlayer.Puuid, currentPlayer.GameName, currentPlayer.TagLine);
+                    await InsertMasteryPoints(currentPlayer.Puuid, 168, "BR1");
+                    await LoopInsertMatchChampion(currentPlayer.Puuid);
+                    currentPlayer.Puuid = await _riotService.GetNextPlayer(currentPlayer.Puuid);
+                }
+
+                return Ok();
             }
             catch (Exception e)
             {

@@ -682,26 +682,24 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\inliv\\.nuget\\packages\\": {}
+    "C:\\Users\\felip\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\USC\\seletor-rabadon\\api\\api.csproj",
+      "projectUniqueName": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
       "projectName": "api",
-      "projectPath": "C:\\USC\\seletor-rabadon\\api\\api.csproj",
-      "packagesPath": "C:\\Users\\inliv\\.nuget\\packages\\",
-      "outputPath": "C:\\USC\\seletor-rabadon\\api\\obj\\",
+      "projectPath": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\api.csproj",
+      "packagesPath": "C:\\Users\\felip\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\felip\\Desktop\\Rabadon-api\\api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\inliv\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "C:\\Users\\felip\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -761,7 +759,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.401/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

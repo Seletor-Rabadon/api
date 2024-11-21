@@ -44,7 +44,7 @@ namespace api.Services
                 ?? throw new JsonException("Failed to deserialize user response");
         }
 
-        public async Task<List<string>> GetMatchHistory(string puuid, int count = 100)
+        public async Task<List<string>> GetMatchHistory(string puuid, int count = 90)
         {
             string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={count}";
             
@@ -90,6 +90,28 @@ namespace api.Services
             var result = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<Profile>(result, _jsonOptions)
                 ?? throw new JsonException("Failed to deserialize profile");
+        }
+
+        public async Task<UserResponse> GetPlayerByPuuid(string puuid)
+        {
+            string url = $"https://{_region}.api.riotgames.com/riot/account/v1/accounts/by-puuid/{puuid}";
+
+            var response = await _client.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<UserResponse>(result, _jsonOptions)
+                ?? throw new JsonException("Failed to deserialize profile");
+        }
+
+        public async Task<string> GetNextPlayer(string puuid)
+        {
+            Random random = new Random();
+            List<string> matches = await GetMatchHistory(puuid);
+
+            var matchData = GetMatchData(matches[random.Next(0, matches.Count)]).Result;
+
+            return matchData.Info.Participants[random.Next(0, matchData.Info.Participants.Count)].Puuid;
         }
     }
 }

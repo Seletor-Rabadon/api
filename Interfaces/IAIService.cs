@@ -4,6 +4,6 @@ namespace api.Interfaces
 {
     public interface IAIService
     {
-        TrainingResult Train();
+        Task<TrainingResult> Train();
     }
 } 

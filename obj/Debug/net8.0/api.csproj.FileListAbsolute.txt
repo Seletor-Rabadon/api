@@ -102,3 +102,7 @@ C:\USC\seletor-rabadon\api\obj\Debug\net8.0\refint\api.dll
 C:\USC\seletor-rabadon\api\obj\Debug\net8.0\api.pdb
 C:\USC\seletor-rabadon\api\obj\Debug\net8.0\api.genruntimeconfig.cache
 C:\USC\seletor-rabadon\api\obj\Debug\net8.0\ref\api.dll
+C:\USC\seletor-rabadon\api\bin\Debug\net8.0\AI\ai_venv\Lib\site-packages\scipy\stats\tests\data\studentized_range_mpmath_ref.json
+C:\USC\seletor-rabadon\api\bin\Debug\net8.0\AI\ai_venv\Lib\site-packages\setuptools\config\distutils.schema.json
+C:\USC\seletor-rabadon\api\bin\Debug\net8.0\AI\ai_venv\Lib\site-packages\setuptools\config\setuptools.schema.json
+C:\USC\seletor-rabadon\api\bin\Debug\net8.0\AI\training_result.json

@@ -26,9 +26,8 @@ namespace api.Controllers
         {
             try
             {
-                // var profile = await _riotService.GetGameProfile(gameName, tagLine);
-                var result = _aiService.Train();
-                return Ok(result);
+                var profile = await _riotService.GetGameProfile(gameName, tagLine);
+                return Ok(profile);
             }
             catch (Exception e)
             {

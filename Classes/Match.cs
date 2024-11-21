@@ -1,37 +1,36 @@
-using System;
-using System.Collections.Generic;
+namespace api.Classes;
 
 public class Match
 {
-    public MetadataDto Metadata { get; set; }
-    public InfoDto Info { get; set; }
+    public required MetadataDto Metadata { get; set; }
+    public required InfoDto Info { get; set; }
 }
 
 public class MetadataDto
 {
-    public string DataVersion { get; set; }
-    public string MatchId { get; set; }
-    public List<string> Participants { get; set; }
+    public required string DataVersion { get; set; }
+    public required string MatchId { get; set; }
+    public required List<string> Participants { get; set; }
 }
 
 public class InfoDto
 {
-    public string EndOfGameResult { get; set; }
+    public required string EndOfGameResult { get; set; }
     public long GameCreation { get; set; }
     public long GameDuration { get; set; }
     public long GameEndTimestamp { get; set; }
     public long GameId { get; set; }
-    public string GameMode { get; set; }
-    public string GameName { get; set; }
+    public required string GameMode { get; set; }
+    public required string GameName { get; set; }
     public long GameStartTimestamp { get; set; }
-    public string GameType { get; set; }
-    public string GameVersion { get; set; }
+    public required string GameType { get; set; }
+    public required string GameVersion { get; set; }
     public int MapId { get; set; }
-    public List<ParticipantDto> Participants { get; set; }
-    public string PlatformId { get; set; }
+    public required List<ParticipantDto> Participants { get; set; }
+    public required string PlatformId { get; set; }
     public int QueueId { get; set; }
-    public List<TeamDto> Teams { get; set; }
-    public string TournamentCode { get; set; }
+    public required List<TeamDto> Teams { get; set; }
+    public required string TournamentCode { get; set; }
 }
 
 public class ParticipantDto
@@ -44,11 +43,11 @@ public class ParticipantDto
     public int ChampExperience { get; set; }
     public int ChampLevel { get; set; }
     public int ChampionId { get; set; }
-    public string ChampionName { get; set; }
+    public required string ChampionName { get; set; }
     public int CommandPings { get; set; }
     public int ChampionTransform { get; set; }
     public int ConsumablesPurchased { get; set; }
-    public ChallengesDto Challenges { get; set; }
+    public required ChallengesDto Challenges { get; set; }
     public int DamageDealtToBuildings { get; set; }
     public int DamageDealtToObjectives { get; set; }
     public int DamageDealtToTurrets { get; set; }
@@ -66,7 +65,7 @@ public class ParticipantDto
     public bool GameEndedInSurrender { get; set; }
     public int GoldEarned { get; set; }
     public int GoldSpent { get; set; }
-    public string IndividualPosition { get; set; }
+    public required string IndividualPosition { get; set; }
     public int InhibitorKills { get; set; }
     public int InhibitorTakedowns { get; set; }
     public int InhibitorsLost { get; set; }
@@ -80,7 +79,7 @@ public class ParticipantDto
     public int ItemsPurchased { get; set; }
     public int KillingSprees { get; set; }
     public int Kills { get; set; }
-    public string Lane { get; set; }
+    public required string Lane { get; set; }
     public int LargestCriticalStrike { get; set; }
     public int LargestKillingSpree { get; set; }
     public int LargestMultiKill { get; set; }
@@ -88,7 +87,7 @@ public class ParticipantDto
     public int MagicDamageDealt { get; set; }
     public int MagicDamageDealtToChampions { get; set; }
     public int MagicDamageTaken { get; set; }
-    public MissionsDto Missions { get; set; }
+    public required MissionsDto Missions { get; set; }
     public int NeutralMinionsKilled { get; set; }
     public int NexusKills { get; set; }
     public int NexusTakedowns { get; set; }
@@ -96,9 +95,9 @@ public class ParticipantDto
     public int ObjectivesStolen { get; set; }
     public int ObjectivesStolenAssists { get; set; }
     public int ParticipantId { get; set; }
-    public string Puuid { get; set; }
+    public required string Puuid { get; set; }
     public int QuadraKills { get; set; }
-    public string SummonerName { get; set; }
+    public required string SummonerName { get; set; }
     public bool Win { get; set; }
     // Adicione outras propriedades conforme necessário
 }
@@ -119,8 +118,8 @@ public class MissionsDto
 
 public class TeamDto
 {
-    public List<BanDto> Bans { get; set; }
-    public ObjectivesDto Objectives { get; set; }
+    public required List<BanDto> Bans { get; set; }
+    public required ObjectivesDto Objectives { get; set; }
     public int TeamId { get; set; }
     public bool Win { get; set; }
 }
@@ -133,9 +132,9 @@ public class BanDto
 
 public class ObjectivesDto
 {
-    public ObjectiveDto Baron { get; set; }
-    public ObjectiveDto Dragon { get; set; }
-    public ObjectiveDto Tower { get; set; }
+    public required ObjectiveDto Baron { get; set; }
+    public required ObjectiveDto Dragon { get; set; }
+    public required ObjectiveDto Tower { get; set; }
     // Adicione outras propriedades conforme necessário
 }
 

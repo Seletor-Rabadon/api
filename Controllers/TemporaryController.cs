@@ -139,7 +139,7 @@ namespace api.Controllers
                     if(totalRequests == 20){
                         //Delay for resquest limit
                         totalRequests = 0;
-                        await Task.Delay(1000);
+                        await Task.Delay(1500);
                     }
 
                 }
@@ -188,6 +188,38 @@ namespace api.Controllers
                     await InsertMasteryPoints(currentPlayer.Puuid, 168, "BR1");
                     await LoopInsertMatchChampion(currentPlayer.Puuid);
                     currentPlayer.Puuid = await _riotService.GetNextPlayer(currentPlayer.Puuid);
+                    await Task.Delay(1500);
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest($"Request error: {e.Message}");
+            }
+        }
+
+        [HttpPost("insertLoopPlayerMastery")]
+        public async Task<ActionResult> InsertLoopPlayerMastery(string puuid, long ms)
+        {
+            try
+            {
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                UserResponse currentPlayer = new UserResponse(){
+                    Puuid = puuid,
+                    GameName = "",
+                    TagLine = ""
+                };
+
+                while (stopwatch.ElapsedMilliseconds < ms)
+                {
+                    currentPlayer = await _riotService.GetPlayerByPuuid(currentPlayer.Puuid);
+                    await _dataService.InsertPlayerAsync(currentPlayer.Puuid, currentPlayer.GameName, currentPlayer.TagLine);
+                    await InsertMasteryPoints(currentPlayer.Puuid, 168, "BR1");
+                    currentPlayer.Puuid = await _riotService.GetNextPlayer(currentPlayer.Puuid);
+                    await Task.Delay(1500);
                 }
 
                 return Ok();

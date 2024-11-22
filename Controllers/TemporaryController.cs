@@ -140,7 +140,8 @@ namespace api.Controllers
                 {
                     await GetMatchData(match, puuid);
                     totalRequests++;
-                    if(totalRequests == 20){
+                    if (totalRequests == 20)
+                    {
                         //Delay for resquest limit
                         totalRequests = 0;
                         await Task.Delay(1500);
@@ -179,7 +180,8 @@ namespace api.Controllers
                 Stopwatch stopwatch = new Stopwatch();
                 stopwatch.Start();
 
-                UserResponse currentPlayer = new UserResponse(){
+                UserResponse currentPlayer = new UserResponse()
+                {
                     Puuid = puuid,
                     GameName = "",
                     TagLine = ""
@@ -211,7 +213,8 @@ namespace api.Controllers
             int successCount = 0;
             int errorCount = 0;
 
-            UserResponse currentPlayer = new(){
+            UserResponse currentPlayer = new()
+            {
                 Puuid = puuid,
                 GameName = "",
                 TagLine = ""
@@ -228,7 +231,11 @@ namespace api.Controllers
                 }
                 catch (Exception e)
                 {
-                    errorCount++; 
+                    errorCount++;
+                    if (e.Message.Contains("403"))
+                    {
+                        return BadRequest("API key expired or invalid permissions");
+                    }
                     Console.WriteLine($"Error processing player {currentPlayer.Puuid}: {e.Message}");
                 }
 
@@ -240,15 +247,20 @@ namespace api.Controllers
                 catch (Exception e)
                 {
                     errorCount++;
-                    Console.WriteLine($"Error getting next player: {e.Message}"); 
+                    if (e.Message.Contains("403"))
+                    {
+                        return BadRequest("API key expired or invalid permissions");
+                    }
+                    Console.WriteLine($"Error getting next player: {e.Message}");
                     break;
                 }
             }
 
-            return Ok(new { 
-                message = "Loop completed", 
-                successfulOperations = successCount, 
-                failedOperations = errorCount 
+            return Ok(new
+            {
+                message = "Loop completed",
+                successfulOperations = successCount,
+                failedOperations = errorCount
             });
         }
     }

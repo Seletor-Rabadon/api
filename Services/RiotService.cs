@@ -106,12 +106,29 @@ namespace api.Services
 
         public async Task<string> GetNextPlayer(string puuid)
         {
-            Random random = new Random();
+            Random random = new();
             List<string> matches = await GetMatchHistory(puuid);
 
-            var matchData = GetMatchData(matches[random.Next(0, matches.Count)]).Result;
+            while (true)
+            {
+                try
+                {
+                    var matchData = await GetMatchData(matches[random.Next(0, matches.Count)]);
+                    
+                    if (matchData?.Info?.Participants == null)
+                        continue;
 
-            return matchData.Info.Participants[random.Next(0, matchData.Info.Participants.Count)].Puuid;
+                    var selectedParticipant = matchData.Info.Participants[random.Next(0, matchData.Info.Participants.Count)];
+                    if (selectedParticipant.Puuid != null)
+                    {
+                        return selectedParticipant.Puuid;
+                    }
+                }
+                catch
+                {
+                    continue;
+                }
+            }
         }
     }
 }

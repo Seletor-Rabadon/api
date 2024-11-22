@@ -202,32 +202,52 @@ namespace api.Controllers
         [HttpPost("insertLoopPlayerMastery")]
         public async Task<ActionResult> InsertLoopPlayerMastery(string puuid, long ms)
         {
-            try
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
+            int successCount = 0;
+            int errorCount = 0;
+
+            UserResponse currentPlayer = new UserResponse(){
+                Puuid = puuid,
+                GameName = "",
+                TagLine = ""
+            };
+
+            while (stopwatch.ElapsedMilliseconds < ms)
             {
-                Stopwatch stopwatch = new Stopwatch();
-                stopwatch.Start();
-
-                UserResponse currentPlayer = new UserResponse(){
-                    Puuid = puuid,
-                    GameName = "",
-                    TagLine = ""
-                };
-
-                while (stopwatch.ElapsedMilliseconds < ms)
+                try
                 {
                     currentPlayer = await _riotService.GetPlayerByPuuid(currentPlayer.Puuid);
                     await _dataService.InsertPlayerAsync(currentPlayer.Puuid, currentPlayer.GameName, currentPlayer.TagLine);
                     await InsertMasteryPoints(currentPlayer.Puuid, 168, "BR1");
+                    successCount++;
+                }
+                catch (Exception e)
+                {
+                    errorCount++;
+                    // Log the error but continue with the loop
+                    Console.WriteLine($"Error processing player {currentPlayer.Puuid}: {e.Message}");
+                }
+
+                try
+                {
                     currentPlayer.Puuid = await _riotService.GetNextPlayer(currentPlayer.Puuid);
                     await Task.Delay(1500);
                 }
+                catch (Exception e)
+                {
+                    errorCount++;
+                    Console.WriteLine($"Error getting next player: {e.Message}");
+                    // If we can't get the next player, break the loop
+                    break;
+                }
+            }
 
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return BadRequest($"Request error: {e.Message}");
-            }
+            return Ok(new { 
+                message = "Loop completed", 
+                successfulOperations = successCount, 
+                failedOperations = errorCount 
+            });
         }
     }
 }

@@ -43,8 +43,8 @@ def train():
     # Read and prepare data
     puuids, values = readCsv()
     
-    # Normalize the data
-    scaler = MinMaxScaler()
+    # Use MinMaxScaler with feature_range=(2, 30)
+    scaler = MinMaxScaler(feature_range=(2, 30))
     values_normalized = scaler.fit_transform(values)
     
     # Save the scaler

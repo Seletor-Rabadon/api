@@ -2,7 +2,7 @@ namespace api.Classes
 {
     public class PlayerMastery
     {
-        public required string Puuid { get; set; } // Player Universal Unique Identifier
+        public string Puuid { get; set; } // Player Universal Unique Identifier
         public long ChampionPointsUntilNextLevel { get; set; } // Points needed for next level
         public bool ChestGranted { get; set; } // Is chest granted in current season
         public long ChampionId { get; set; } // Champion ID
@@ -12,23 +12,23 @@ namespace api.Classes
         public long ChampionPointsSinceLastLevel { get; set; } // Points since last level
         public int MarkRequiredForNextLevel { get; set; } // Marks required for next level
         public int ChampionSeasonMilestone { get; set; } // Champion season milestone
-        public required NextSeasonMilestonesDto NextSeasonMilestone { get; set; } // Next season milestone details
+        public NextSeasonMilestonesDto NextSeasonMilestone { get; set; } // Next season milestone details
         public int TokensEarned { get; set; } // Tokens earned at current level
-        public required List<string> MilestoneGrades { get; set; } // List of milestone grades
+        public List<string> MilestoneGrades { get; set; } // List of milestone grades
     }
 
     public class NextSeasonMilestonesDto
     {
-        public required object RequireGradeCounts { get; set; } // Object representing required grade counts
+        public object RequireGradeCounts { get; set; } // Object representing required grade counts
         public int RewardMarks { get; set; } // Reward marks
         public bool Bonus { get; set; } // Indicates if there is a bonus
-        public required RewardConfigDto RewardConfig { get; set; } // Reward configuration details
+        public RewardConfigDto RewardConfig { get; set; } // Reward configuration details
     }
 
     public class RewardConfigDto
     {
-        public required string RewardValue { get; set; } // Reward value
-        public required string RewardType { get; set; } // Reward type
+        public string RewardValue { get; set; } // Reward value
+        public string RewardType { get; set; } // Reward type
         public int MaximumReward { get; set; } // Maximum reward
     }
 }

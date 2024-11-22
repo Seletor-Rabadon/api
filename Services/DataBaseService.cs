@@ -11,13 +11,19 @@ namespace api.Services
 
         public async Task<bool> InsertPlayerAsync(string puuid, string userName, string tagLine)
         {
-
-            var query = "INSERT INTO public.player (puuid, game_name, tag_line) VALUES (@PUUID, @GAMENAME, @TAGLINE)";
+            var checkQuery = "SELECT COUNT(*) FROM public.player WHERE puuid = @PUUID";
+            var insertQuery = "INSERT INTO public.player (puuid, game_name, tag_line) VALUES (@PUUID, @GAMENAME, @TAGLINE)";
+            var updateQuery = "UPDATE public.player SET game_name = @GAMENAME, tag_line = @TAGLINE WHERE puuid = @PUUID";
 
             await using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            await using var command = new NpgsqlCommand(query, connection);
+            await using var checkCommand = new NpgsqlCommand(checkQuery, connection);
+            checkCommand.Parameters.AddWithValue("PUUID", puuid);
+            
+            var exists = await checkCommand.ExecuteScalarAsync() as long? > 0 || false;
+
+            await using var command = new NpgsqlCommand(exists ? updateQuery : insertQuery, connection);
             command.Parameters.AddWithValue("PUUID", puuid);
             command.Parameters.AddWithValue("GAMENAME", userName);
             command.Parameters.AddWithValue("TAGLINE", tagLine);
@@ -29,7 +35,7 @@ namespace api.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
+                Console.WriteLine($"Error while {(exists ? "updating" : "inserting")} data: {ex.Message}");
                 return false;
             }
             finally

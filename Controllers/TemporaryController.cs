@@ -80,9 +80,13 @@ namespace api.Controllers
             try
             {
                 var matchData = await _riotService.GetMatchData(matchId);
+                if (matchData?.Info == null || matchData.Info.Participants == null)
+                {
+                    return NotFound("Match data not found");
+                }
                 var participant = matchData.Info.Participants.Find(p => p.Puuid == puuid);
 
-                if (participant == null)
+                if (participant == null || participant.Puuid == null)
                 {
                     return NotFound("Participant not found in match");
                 }
@@ -207,7 +211,7 @@ namespace api.Controllers
             int successCount = 0;
             int errorCount = 0;
 
-            UserResponse currentPlayer = new UserResponse(){
+            UserResponse currentPlayer = new(){
                 Puuid = puuid,
                 GameName = "",
                 TagLine = ""
@@ -224,8 +228,7 @@ namespace api.Controllers
                 }
                 catch (Exception e)
                 {
-                    errorCount++;
-                    // Log the error but continue with the loop
+                    errorCount++; 
                     Console.WriteLine($"Error processing player {currentPlayer.Puuid}: {e.Message}");
                 }
 
@@ -237,8 +240,7 @@ namespace api.Controllers
                 catch (Exception e)
                 {
                     errorCount++;
-                    Console.WriteLine($"Error getting next player: {e.Message}");
-                    // If we can't get the next player, break the loop
+                    Console.WriteLine($"Error getting next player: {e.Message}"); 
                     break;
                 }
             }

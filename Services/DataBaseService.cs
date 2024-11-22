@@ -46,13 +46,20 @@ namespace api.Services
 
         public async Task<bool> InsertPlayerMasteryAsync(string puuid, long championId, int championLevel)
         {
-
-            var query = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";
+            var checkQuery = "SELECT COUNT(*) FROM public.player_mastery WHERE puuid = @PUUID AND champion_id = @CHAMPIONID";
+            var insertQuery = "INSERT INTO public.player_mastery (puuid, champion_id, champion_level) VALUES (@PUUID, @CHAMPIONID, @CHAMPIONLEVEL)";
+            var updateQuery = "UPDATE public.player_mastery SET champion_level = @CHAMPIONLEVEL WHERE puuid = @PUUID AND champion_id = @CHAMPIONID";
 
             await using var connection = new NpgsqlConnection(_connectionString);
             await connection.OpenAsync();
 
-            await using var command = new NpgsqlCommand(query, connection);
+            await using var checkCommand = new NpgsqlCommand(checkQuery, connection);
+            checkCommand.Parameters.AddWithValue("PUUID", puuid);
+            checkCommand.Parameters.AddWithValue("CHAMPIONID", championId);
+            
+            var exists = await checkCommand.ExecuteScalarAsync() as long? > 0 || false;
+
+            await using var command = new NpgsqlCommand(exists ? updateQuery : insertQuery, connection);
             command.Parameters.AddWithValue("PUUID", puuid);
             command.Parameters.AddWithValue("CHAMPIONID", championId);
             command.Parameters.AddWithValue("CHAMPIONLEVEL", championLevel);
@@ -64,7 +71,7 @@ namespace api.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Erro ao inserir dados: {ex.Message}");
+                Console.WriteLine($"Error while {(exists ? "updating" : "inserting")} mastery data: {ex.Message}");
                 return false;
             }
             finally

@@ -48,9 +48,7 @@ yarn-error.log*
 .env.development.local
 .env.test.local
 .env.production.local
-appsettings.json
-appsettings.Development.json
-appsettings.*.json
+appsettings*.json
 
 # Dependencies
 node_modules/

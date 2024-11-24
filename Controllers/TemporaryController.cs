@@ -206,7 +206,7 @@ namespace api.Controllers
         }
 
         [HttpPost("insertLoopPlayerMastery")]
-        public async Task<ActionResult> InsertLoopPlayerMastery(string puuid, long ms)
+        public async Task<ActionResult> InsertLoopPlayerMastery(string puuid, long? ms)
         {
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
@@ -220,10 +220,11 @@ namespace api.Controllers
                 TagLine = ""
             };
 
-            while (stopwatch.ElapsedMilliseconds < ms)
+            while (ms == null || stopwatch.ElapsedMilliseconds < ms)
             {
                 try
                 {
+                    Console.WriteLine($"Processing {successCount + successCount + 1}th player {currentPlayer.Puuid}");
                     currentPlayer = await _riotService.GetPlayerByPuuid(currentPlayer.Puuid);
                     await _dataService.InsertPlayerAsync(currentPlayer.Puuid, currentPlayer.GameName, currentPlayer.TagLine);
                     await InsertMasteryPoints(currentPlayer.Puuid, 168, "BR1");

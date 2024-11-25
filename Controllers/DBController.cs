@@ -15,8 +15,14 @@ namespace api.Controllers
         private readonly IDataBaseService _dataService = dataService;
         private readonly IRiotService _riotService = riotService;
 
-        private async Task<bool> RecursivePopulateDataBase(string puuid)
+        private async Task<bool> RecursivePopulateDataBase(string puuid, string[] addedPlayers)
         {
+            if (addedPlayers.Contains(puuid))
+            {
+                Console.WriteLine($"    - ➖ Player already added");
+                return true;
+            }
+
             Console.WriteLine($"=====================================================");
             var player = await _riotService.GetPlayerByPuuid(puuid);
             await Task.Delay(1500);
@@ -28,10 +34,15 @@ namespace api.Controllers
             await Task.Delay(1500);
 
             Console.WriteLine($"    - Inserting player...");
+
             await _dataService.InsertPlayer(player);
+
+            await Task.Delay(1500);
 
             Console.WriteLine($"    - Inserting champion masteries...");
             await _dataService.InsertChampionMasteries(player.Puuid, championMasteries);
+
+            addedPlayers = [.. addedPlayers, player.Puuid];
 
             Console.WriteLine($"    - Getting match history...");
             var matchHistory = await _riotService.GetMatchHistory(player.Puuid);
@@ -56,13 +67,19 @@ namespace api.Controllers
 
                 foreach (var participant in participants)
                 {
+                    if (addedPlayers.Contains(participant.Puuid))
+                    {
+                        Console.WriteLine($"    - ➖ Participant already added");
+                        continue;
+                    }
+
                     if (participant.Puuid == player.Puuid || participant.Puuid == null)
                     {
                         Console.WriteLine($"    - ➖ Participant is the same as the player");
                         continue;
                     }
 
-                    await RecursivePopulateDataBase(participant.Puuid);
+                    await RecursivePopulateDataBase(participant.Puuid, addedPlayers);
                 }
             }
 
@@ -79,7 +96,7 @@ namespace api.Controllers
             {
                 try
                 {
-                    await RecursivePopulateDataBase(puuid);
+                    await RecursivePopulateDataBase(puuid, []);
                 }
                 catch (Exception e)
                 {

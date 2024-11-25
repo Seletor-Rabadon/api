@@ -44,9 +44,9 @@ namespace api.Services
                 ?? throw new JsonException("Failed to deserialize user response");
         }
 
-        public async Task<List<string>> GetMatchHistory(string puuid, int count = 90)
+            public async Task<List<string>> GetMatchHistory(string puuid)
         {
-            string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count={count}";
+            string url = $"https://{_region}.api.riotgames.com/lol/match/v5/matches/by-puuid/{puuid}/ids?count=90"; 
             
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();
@@ -56,9 +56,9 @@ namespace api.Services
                 ?? throw new JsonException("Failed to deserialize match history");
         }
 
-        public async Task<List<PlayerMastery>> GetChampionMasteries(string puuid, int championCount, string server)
+        public async Task<List<PlayerMastery>> GetChampionMasteries(string puuid)
         {
-            string url = $"https://{server}.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count={championCount}";
+            string url = $"https://BR1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count=168";
             
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();

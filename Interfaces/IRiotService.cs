@@ -6,10 +6,10 @@ namespace api.Interfaces
     {
         Task<Profile> GetGameProfile(string gameName, string tagLine);
         Task<UserResponse> GetUserByRiotId(string gameName, string tagLine);
-        Task<List<string>> GetMatchHistory(string puuid, int count = 100);
-        Task<List<PlayerMastery>> GetChampionMasteries(string puuid, int championCount, string server);
+        Task<List<string>> GetMatchHistory(string puuid);
+        Task<List<PlayerMastery>> GetChampionMasteries(string puuid);
         Task<Match> GetMatchData(string matchId);
-        Task<string> GetNextPlayer(string puuid);
+        Task<string> GetNextPlayer(string puuid); 
         Task<UserResponse> GetPlayerByPuuid(string puuid);
     }
 } 

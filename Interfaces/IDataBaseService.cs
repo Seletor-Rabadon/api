@@ -8,6 +8,8 @@ namespace api.Interfaces
 
         Task<bool> InsertMatchAsync(MatchChampion matchChampion);
 
+        Task<List<PlayerImage>> GetPlayerImages();
+
         Task<bool> UpdatePlayerDataAsync(string puuid);
         Task<bool> InsertChampionMasteries(string puuid, List<PlayerMastery> playerMastery); 
     }

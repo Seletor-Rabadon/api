@@ -1,6 +1,8 @@
 using api.Classes;
 using api.Interfaces;
 using Npgsql;
+using Dapper;
+using api.Constants;
 
 namespace api.Services
 {
@@ -42,7 +44,7 @@ namespace api.Services
             {
                 await connection.CloseAsync();
             }
-        } 
+        }
 
         public async Task<bool> InsertMatchAsync(MatchChampion matchChampion)
         {
@@ -171,6 +173,47 @@ namespace api.Services
             }
         }
 
-       
+        public async Task<List<PlayerImage>> GetPlayerImages()
+        {
+            var selectClauses = ChampionConstants.Champions.Keys
+                .Select(championId =>
+                    $"MAX(CASE WHEN champion_id = '{championId}' THEN champion_level ELSE 0 END) AS champion_{championId}")
+                .ToList();
+
+            var sql = @$"
+                SELECT  puuid,
+                        {string.Join(",\n        ", selectClauses)}
+                FROM player_mastery
+                GROUP BY puuid
+                HAVING COUNT(DISTINCT champion_id) > {ChampionConstants.MIN_COUNT_CONSIDERED};
+            ";
+
+            using var connection = new NpgsqlConnection(_connectionString);
+            var results = await connection.QueryAsync(sql);
+
+            var playerImages = new List<PlayerImage>();
+
+            foreach (var row in results)
+            {
+                var championLevels = new int[ChampionConstants.COUNT];
+
+                PlayerImage playerImage = new()
+                {
+                    Puuid = row.puuid.ToString()
+                };
+                
+                foreach (var (championId, championName) in ChampionConstants.Champions)
+                {
+                    var columnName = $"champion_{championId}";
+                    var level = Convert.ToInt32(((IDictionary<string, object>)row)[columnName]);
+                    playerImage.GetType().GetProperty($"Champion_{championId}")?.SetValue(playerImage, level);
+                }
+
+                playerImages.Add(playerImage);
+
+            }
+
+            return playerImages;
+        }
     }
 }

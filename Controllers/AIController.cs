@@ -3,16 +3,12 @@ using api.Interfaces;
 
 namespace api.Controllers
 {
-    [ApiController]    
-    [Route("ai")]  
-    public class AIController : ControllerBase
-    { 
-        private readonly IAIService _aiService; 
-        public AIController(
-            IAIService aiService)
-        { 
-            _aiService = aiService; 
-        }
+    [ApiController]
+    [Route("ai")]
+    public class AIController(
+        IAIService aiService) : ControllerBase
+    {
+        private readonly IAIService _aiService = aiService;
 
         [HttpGet("train")]
         public async Task<ActionResult> Train()
@@ -27,5 +23,6 @@ namespace api.Controllers
                 return BadRequest($"Request error: {e.Message}");
             }
         }
+
     }
 }

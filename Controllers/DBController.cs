@@ -3,6 +3,8 @@ using api.Interfaces;
 using api.Classes;
 using System.Diagnostics;
 using api.Services;
+using System.IO;
+using api.Constants;
 
 namespace api.Controllers
 {
@@ -87,16 +89,18 @@ namespace api.Controllers
         }
 
         [HttpPost("populate")]
-        public async Task<ActionResult> populate(string puuid, long? ms)
+        public async Task<ActionResult> Populate(string GameName, string TagLine, long? ms)
         {
             Stopwatch stopwatch = new();
+
+            var player = await _riotService.GetGameProfile(GameName, TagLine);
 
             await Task.Delay(1500);
             while (ms == null || stopwatch.ElapsedMilliseconds < ms)
             {
                 try
                 {
-                    await RecursivePopulateDataBase(puuid, []);
+                    await RecursivePopulateDataBase(player.Puuid, []);
                 }
                 catch (Exception e)
                 {
@@ -109,6 +113,48 @@ namespace api.Controllers
             }
 
             return Ok(new { message = "Loop completed" });
+        }
+
+         [HttpGet("generate-data-file")]
+        public async Task<ActionResult> GenerateDataFile()
+        {
+            try
+            {
+                Console.WriteLine("Fetching player images...");
+                var playerImages = await _dataService.GetPlayerImages();
+                var aiFolder = Path.Combine(Directory.GetCurrentDirectory(), "AI");
+                var filePath = Path.Combine(aiFolder, "data.csv");
+                
+                if (!Directory.Exists(aiFolder))
+                {
+                    Directory.CreateDirectory(aiFolder);
+                }
+                
+                Console.WriteLine("Generating data file...");
+                using (var writer = new StreamWriter(filePath))
+                {
+                    foreach (var player in playerImages)
+                    { 
+                        var line = player.Puuid; 
+
+                        for (int i = 1; i <= ChampionConstants.COUNT; i++)
+                        {
+                            var championLevel = player.GetType().GetProperty($"Champion_{i}")?.GetValue(player) ?? 0;
+                            line += $";{championLevel}";
+                        }
+
+                        await writer.WriteLineAsync(line);
+                    }
+                }
+
+                Console.WriteLine("Data file generated successfully");
+                return Ok(new { message = "Data file generated successfully", path = filePath });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"❌ Error generating data file: {ex.Message}");
+                return BadRequest(new { message = $"Error generating data file: {ex.Message}" });
+            }
         }
 
     }

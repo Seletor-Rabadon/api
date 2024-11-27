@@ -1,5 +1,6 @@
 using System.Text.Json;
 using api.Classes;
+using api.Constants;
 using api.Interfaces;
 
 namespace api.Services
@@ -58,7 +59,7 @@ namespace api.Services
 
         public async Task<List<PlayerMastery>> GetChampionMasteries(string puuid)
         {
-            string url = $"https://BR1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count=168";
+            string url = $"https://BR1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-puuid/{puuid}/top?count={ChampionConstants.COUNT}";
             
             var response = await _client.GetAsync(url);
             response.EnsureSuccessStatusCode();

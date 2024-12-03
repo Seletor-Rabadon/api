@@ -23,8 +23,8 @@ namespace api.Controllers
             _riotService = riotService;
         }
 
-        [HttpGet("{gameName}/{tagLine}/compatibility")]
-        public async Task<ActionResult> GetGameProfileCompatibility([FromRoute] string gameName, [FromRoute] string tagLine)
+        [HttpGet("{gameName}/{tagLine}/affinity")]
+        public async Task<ActionResult> GetGameProfileAffinity([FromRoute] string gameName, [FromRoute] string tagLine)
         {
             try
             {
@@ -46,14 +46,30 @@ namespace api.Controllers
                     var mastery = championMasteries.FirstOrDefault(m => m.ChampionId == championIds[i]);
                     var propertyName = $"Champion_{i + 1}";
                     var property = typeof(PlayerImage).GetProperty(propertyName);
-                    property?.SetValue(playerImage, mastery?.ChampionPoints ?? 0);
+                    property?.SetValue(playerImage, mastery?.ChampionLevel ?? 0);
                 }
 
                 Console.WriteLine("Predicting");
-                var result = await _aiService.Predict(playerImage);
+                PlayerImage result = await _aiService.Predict(playerImage);
+
+                var affinity = new List<double>();
+
+                for (int i = 0; i < ChampionConstants.COUNT; i++)
+                {
+                    var property = result.GetType().GetProperty($"Champion_{i + 1}");
+                    var value = (double?)property?.GetValue(result) ?? 0;
+                    if ((double?)property?.GetValue(playerImage) >= 2)
+                        value = 0;
+
+                    var normalizedValue = value / 20;
+                    affinity.Add(normalizedValue);
+                }
+                
+
                 return Ok(new {
-                    PredictionResult = result,
+                    Affinity = affinity,
                     Profile = profile, 
+                    playerImage
                 });
             }
             catch (Exception e)

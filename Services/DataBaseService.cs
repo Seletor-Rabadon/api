@@ -185,7 +185,7 @@ namespace api.Services
                         {string.Join(",\n        ", selectClauses)}
                 FROM player_mastery
                 GROUP BY puuid
-                HAVING COUNT(DISTINCT champion_id) > {ChampionConstants.MIN_COUNT_CONSIDERED};
+                HAVING COUNT(DISTINCT CASE WHEN champion_level >= 2 THEN champion_id END) > {ChampionConstants.MIN_COUNT_CONSIDERED};
             ";
 
             using var connection = new NpgsqlConnection(_connectionString);

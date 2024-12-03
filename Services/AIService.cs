@@ -110,27 +110,25 @@ namespace api.Services
             
             try
             {
-                string jsonResult = await File.ReadAllTextAsync(resultFilePath);
-                Console.WriteLine("Prediction result:");
-                Console.WriteLine(jsonResult);
+                string jsonResult = await File.ReadAllTextAsync(resultFilePath); 
                 var result = JsonSerializer.Deserialize<PredictionResult>(jsonResult, _jsonOptions)
-                    ?? throw new Exception("Failed to deserialize prediction result");
-                Console.WriteLine("ReconstructedValues result:");
+                    ?? throw new Exception("Failed to deserialize prediction result"); 
                 // Convert prediction result back to PlayerImage
                 var predictedImage = new PlayerImage { Puuid = playerImage.Puuid };
-                var reconstructedValues = result.Reconstructed_values;
-                Console.WriteLine(reconstructedValues);
+                var reconstructedValues = result.Reconstructed_values; 
                 
                 // Add null check and length validation
                 if (reconstructedValues == null || reconstructedValues.Count != ChampionConstants.COUNT)
                 {
                     throw new Exception($"Invalid prediction result: Expected {ChampionConstants.COUNT} values but got {reconstructedValues?.Count ?? 0}");
-                }
+                } 
                 
                 for (int i = 0; i < ChampionConstants.COUNT; i++)
                 {
                     var property = predictedImage.GetType().GetProperty($"Champion_{i + 1}")
                         ?? throw new Exception($"Property Champion_{i + 1} not found");
+                    
+                        
                     property.SetValue(predictedImage, reconstructedValues[i]);
                 }
                 

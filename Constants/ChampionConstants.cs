@@ -3,7 +3,7 @@ namespace api.Constants
     public static class ChampionConstants
     {
         public static readonly int COUNT = 168;
-        public static readonly int MIN_COUNT_CONSIDERED = 50;
+        public static readonly int MIN_COUNT_CONSIDERED = 100;
         public static readonly Dictionary<string, string> Champions = new()
         {
             { "266", "Aatrox" },

@@ -23,19 +23,24 @@ class ChampionRecommender:
         values = df.iloc[:, 1:].values  # Get the champion levels
         
         # Apply the same preprocessing as in training
-        values = np.clip(values, 0, 25)
+        values = np.clip(values, 0, 28)
         values[values < 2] = 0
         
         # Normalize the input data
         values_normalized = self.scaler.transform(values)
         
-        # Get the prediction
-        reconstructed_normalized = self.model.predict(values_normalized, verbose=0)
+        # Add noise to the normalized values (matching training process)
+        noise_factor = 0.05
+        noise = np.random.normal(loc=0.0, scale=noise_factor, size=values_normalized.shape)
+        values_normalized_noisy = np.clip(values_normalized + noise, 0, 1)
+        
+        # Get the prediction (using noisy input)
+        reconstructed_normalized = self.model.predict(values_normalized_noisy, verbose=0)
         
         # Denormalize the prediction
         reconstructed = self.scaler.inverse_transform(reconstructed_normalized) 
         
-        reconstructed = np.clip(reconstructed, 0, 20)
+        reconstructed = np.clip(reconstructed, 0, 28)
         
         # Calculate reconstruction error
         mse = np.mean(np.power(values - reconstructed, 2), axis=1)

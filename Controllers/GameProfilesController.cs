@@ -58,10 +58,10 @@ namespace api.Controllers
                 {
                     var property = result.GetType().GetProperty($"Champion_{i + 1}");
                     var value = (double?)property?.GetValue(result) ?? 0;
-                    if ((double?)property?.GetValue(playerImage) >= 2)
-                        value = 0;
+                    // if ((double?)property?.GetValue(playerImage) >= 2)
+                    //     value = 0;
 
-                    var normalizedValue = value / 20;
+                    var normalizedValue = value / 28;
                     affinity.Add(normalizedValue);
                 }
                 

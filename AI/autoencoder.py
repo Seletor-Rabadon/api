@@ -24,9 +24,8 @@ def create_autoencoder(input_dim):
     # Input layer
     input_layer = keras.layers.Input(shape=(input_dim,))
     
-    encoded = keras.layers.Dense(24, activation='relu', 
-                               kernel_regularizer=keras.regularizers.l2(0.01))(input_layer)
-    decoded = keras.layers.Dense(input_dim, activation='linear')(encoded)
+    encoded = keras.layers.Dense(86, activation='relu')(input_layer)
+    decoded = keras.layers.Dense(input_dim, activation='sigmoid')(encoded)
     
     # Create model
     autoencoder = keras.Model(input_layer, decoded)
@@ -45,7 +44,7 @@ def normalize_data(values):
         scaler: The fitted MinMaxScaler object
     """
     # Clip values to desired ranges  25
-    values = np.clip(values, 0, 20)
+    values = np.clip(values, 0, 28)
     values[values < 2] = 0
     
     scaler = MinMaxScaler()
@@ -57,7 +56,7 @@ def normalize_data(values):
         
     return values_normalized, scaler
 
-def add_noise(data, noise_factor=0.05):
+def add_noise(data, noise_factor=0.06):
     """
     Add random Gaussian noise to the data
     
@@ -81,39 +80,24 @@ def train():
     values_normalized, scaler = normalize_data(values)
     
     # Split the data
-    X_train, X_test = train_test_split(values_normalized, test_size=0.25, random_state=42)
+    X_train, X_test = train_test_split(values_normalized, test_size=0.2, random_state=42)
     
     # Create and compile the autoencoder
     input_dim = values.shape[1]
     autoencoder = create_autoencoder(input_dim)
     autoencoder.compile(optimizer='adam', loss='mse')
     
-    # Add early stopping and reduce learning rate on plateau
-    early_stopping = keras.callbacks.EarlyStopping(
-        monitor='val_loss',
-        patience=10,
-        restore_best_weights=True
-    )
-    
-    reduce_lr = keras.callbacks.ReduceLROnPlateau(
-        monitor='val_loss',
-        factor=0.25,
-        patience=5,
-        min_lr=1e-6
-    )
-    
     # Add noise to training data
     X_train_noisy = add_noise(X_train)
     X_test_noisy = add_noise(X_test)
     
-    # Modify training to use noisy input but clean targets
+    # Modified training without callbacks
     history = autoencoder.fit(
-        X_train_noisy, X_train,  # Input noisy data, but try to reconstruct clean data
-        epochs=128,
+        X_train_noisy, X_train,
+        epochs=170,
         batch_size=64,
         shuffle=True,
-        validation_data=(X_test_noisy, X_test),  # Same for validation data
-        callbacks=[early_stopping, reduce_lr]
+        validation_data=(X_test_noisy, X_test)
     )
     
     # Save the model

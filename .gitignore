@@ -26,6 +26,8 @@ AI/*.h5
 AI/*.pkl
 AI/training_result.json
 AI/data.csv
+AI/prediction_data.csv
+AI/prediction_result.json
 
 # IDE
 .idea/
